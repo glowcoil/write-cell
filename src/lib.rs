@@ -1,5 +1,7 @@
-use std::cell::UnsafeCell;
-use std::ops::{Deref, DerefMut};
+#![no_std]
+
+use core::cell::UnsafeCell;
+use core::ops::{Deref, DerefMut};
 
 mod project;
 
