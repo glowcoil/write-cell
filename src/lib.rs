@@ -1,7 +1,13 @@
 #![no_std]
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
+
+#[cfg(feature = "alloc")]
+use alloc::sync::Arc;
 
 mod project;
 
@@ -32,6 +38,15 @@ impl<T: ?Sized> Write<&T> {
     #[inline]
     pub fn from_mut(r: &mut T) -> Write<&T> {
         Write { pointer: r }
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl<T> Write<Arc<T>> {
+    #[inline]
+    pub fn new_arc(value: T) -> Write<Arc<T>> {
+        let arc = Arc::new(value);
+        unsafe { Write::new_unchecked(arc) }
     }
 }
 
@@ -140,5 +155,12 @@ mod tests {
         let write_outer = Write::from_mut(&mut write_inner);
 
         *write_outer.project().write() = 4;
+    }
+
+    #[cfg(feature = "alloc")]
+    #[test]
+    fn arc() {
+        let mut arc = Write::new_arc(WriteCell::new(3));
+        *arc.write() = 4;
     }
 }
