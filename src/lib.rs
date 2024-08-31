@@ -1,5 +1,5 @@
 use std::cell::UnsafeCell;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 pub struct Write<P> {
     pointer: P,
@@ -39,6 +39,22 @@ where
     #[inline]
     pub fn write(&mut self) -> &mut T {
         unsafe { &mut *self.pointer.deref().value.get() }
+    }
+}
+
+impl<P: Deref> Deref for Write<P> {
+    type Target = P::Target;
+
+    #[inline]
+    fn deref(&self) -> &P::Target {
+        self.pointer.deref()
+    }
+}
+
+impl<P: DerefMut> DerefMut for Write<P> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut P::Target {
+        self.pointer.deref_mut()
     }
 }
 
