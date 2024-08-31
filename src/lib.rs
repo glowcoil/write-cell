@@ -18,6 +18,11 @@ impl<P> Write<P> {
     }
 
     #[inline]
+    pub fn as_inner(write: &Write<P>) -> &P {
+        &write.pointer
+    }
+
+    #[inline]
     pub fn into_inner(write: Write<P>) -> P {
         write.pointer
     }
