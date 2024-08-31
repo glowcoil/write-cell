@@ -24,6 +24,14 @@ impl<T: ?Sized> Write<&T> {
     }
 }
 
+impl<P: Deref> Write<P> {
+    #[inline]
+    pub fn as_ref(&mut self) -> Write<&P::Target> {
+        let target = self.pointer.deref();
+        unsafe { Write::new_unchecked(target) }
+    }
+}
+
 impl<P, T: ?Sized> Write<P>
 where
     P: Deref<Target = WriteCell<T>>,
@@ -68,7 +76,11 @@ mod tests {
     #[test]
     fn write() {
         let mut cell = WriteCell::new(3);
+
         let mut write = Write::from_mut(&mut cell);
         *write.write() = 4;
+
+        let mut write_ref = write.as_ref();
+        *write_ref.write() = 5;
     }
 }
