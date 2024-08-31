@@ -1,6 +1,10 @@
 use std::cell::UnsafeCell;
 use std::ops::{Deref, DerefMut};
 
+mod project;
+
+pub use project::Project;
+
 pub struct Write<P> {
     pointer: P,
 }
@@ -29,6 +33,16 @@ impl<P: Deref> Write<P> {
     pub fn as_ref(&mut self) -> Write<&P::Target> {
         let target = self.pointer.deref();
         unsafe { Write::new_unchecked(target) }
+    }
+}
+
+impl<'a, T: ?Sized> Write<&'a T>
+where
+    T: Project<'a>,
+{
+    #[inline]
+    pub fn project(self) -> T::Target {
+        T::project(self)
     }
 }
 
@@ -98,5 +112,15 @@ mod tests {
 
         let mut write_ref = write.as_ref();
         *write_ref.write() = 5;
+    }
+
+    #[test]
+    fn project_write() {
+        let mut cell = WriteCell::new(3);
+
+        let mut write_inner = Write::from_mut(&mut cell);
+        let write_outer = Write::from_mut(&mut write_inner);
+
+        *write_outer.project().write() = 4;
     }
 }
