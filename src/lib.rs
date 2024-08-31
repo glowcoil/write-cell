@@ -53,6 +53,17 @@ where
     }
 }
 
+impl<'a, T: ?Sized> Write<&'a T> {
+    #[inline]
+    pub unsafe fn map_unchecked<U: ?Sized, F>(self, f: F) -> Write<&'a U>
+    where
+        F: FnOnce(&T) -> &U,
+    {
+        let target = f(self.pointer);
+        unsafe { Write::new_unchecked(target) }
+    }
+}
+
 impl<P, T: ?Sized> Write<P>
 where
     P: Deref<Target = WriteCell<T>>,
