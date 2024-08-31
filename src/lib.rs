@@ -24,13 +24,13 @@ impl<P> Write<P> {
     }
 
     #[inline]
-    pub fn as_inner(write: &Write<P>) -> &P {
-        &write.pointer
+    pub fn as_inner(&self) -> &P {
+        &self.pointer
     }
 
     #[inline]
-    pub fn into_inner(write: Write<P>) -> P {
-        write.pointer
+    pub fn into_inner(self) -> P {
+        self.pointer
     }
 }
 
